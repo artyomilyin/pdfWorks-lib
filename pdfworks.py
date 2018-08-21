@@ -53,22 +53,6 @@ class Converter:
 
         shutil.rmtree(self.tempdir, ignore_errors=True)
 
-    def split(self, filename, folder):
-
-        with open(filename, 'rb') as infile:
-
-            reader = PdfFileReader(infile)
-            for i in range(1, reader.numPages+1):
-                writer = PdfFileWriter()
-                writer.addPage(reader.getPage(i-1))
-                outfile_name = os.path.join(
-                    folder,
-                    os.path.splitext(ntpath.split(filename)[1])[0] + '_' + str(i) + '.pdf'
-                )
-                print(outfile_name)
-                with open(outfile_name, 'wb') as outfile:
-                    writer.write(outfile)
-
     def __init__(self):
         self.input_files = None
         self.a4inpt = (img2pdf.mm_to_pt(210), img2pdf.mm_to_pt(297))
@@ -82,6 +66,21 @@ class Converter:
             self.tempdir = os.sep.join([self.homedir, 'Application Data', 'pdfWorks'])
         else:
             self.tempdir = os.sep.join([self.homedir, '.pdfWorks'])
+
+
+def split_pdf(filename, folder):
+    with open(filename, 'rb') as infile:
+        reader = PdfFileReader(infile)
+        for i in range(1, reader.numPages + 1):
+            writer = PdfFileWriter()
+            writer.addPage(reader.getPage(i - 1))
+            outfile_name = os.path.join(
+                folder,
+                os.path.splitext(ntpath.split(filename)[1])[0] + '_' + str(i) + '.pdf'
+            )
+            print(outfile_name)
+            with open(outfile_name, 'wb') as outfile:
+                writer.write(outfile)
 
 
 if __name__ == '__main__':
