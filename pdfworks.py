@@ -11,30 +11,6 @@ class Converter:
 
     SUPPORTED_IMAGE_FILE_FORMATS = ['.jpg', '.png']
 
-    def files_chosen(self):
-        if self.input_files is not None:
-            return True
-        else:
-            return False
-
-    def set_input_files(self, input_files_list):
-
-        if not os.path.exists(self.tempdir):
-            os.makedirs(self.tempdir)
-
-        for file in input_files_list:
-            if file.lower().endswith(tuple(self.SUPPORTED_IMAGE_FILE_FORMATS)):
-                new_filename = os.path.join(self.tempdir, ntpath.split(file)[1]+'.pdf')
-                with open(file, 'rb') as r, open(new_filename, 'wb') as w:
-                    try:
-                        w.write(img2pdf.convert(r, layout_fun=self.layout_fun))
-                    except TypeError as e:
-                        print(e)
-                self.FINAL_LIST.add(new_filename)
-
-            if file.endswith('.pdf'):
-                self.FINAL_LIST.add(file)
-
     def convert(self, input_files_list, output_filename):
 
         if not os.path.exists(self.tempdir):
@@ -97,8 +73,3 @@ class Converter:
             self.tempdir = os.sep.join([self.homedir, 'Application Data', 'pdfWorks'])
         else:
             self.tempdir = os.sep.join([self.homedir, '.pdfWorks'])
-
-
-if __name__ == '__main__':
-    Converter().convert('OUTPUT/'+datetime.strftime(datetime.now(), '%Y%B%d_%H%M%S')+'.pdf')
-
