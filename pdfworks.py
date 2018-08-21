@@ -35,7 +35,9 @@ class Converter:
             if file.endswith('.pdf'):
                 self.FINAL_LIST.add(file)
 
-    def convert(self, filename):
+    def convert(self, input_files_list, output_filename):
+
+        self.set_input_files(input_files_list)
 
         merger = PdfFileMerger()
 
@@ -43,7 +45,7 @@ class Converter:
             self.FILE_HANDLES.append(open(file, 'rb'))
             merger.append(self.FILE_HANDLES[-1])
 
-        with open(filename, 'wb') as w:
+        with open(output_filename, 'wb') as w:
             merger.write(w)
 
         for handle in self.FILE_HANDLES:
