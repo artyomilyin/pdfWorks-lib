@@ -4,7 +4,6 @@ import os
 import shutil
 import ntpath
 import sys
-from datetime import datetime
 
 
 class Converter:
