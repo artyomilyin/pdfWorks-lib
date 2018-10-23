@@ -8,7 +8,7 @@ import sys
 
 class Converter:
 
-    SUPPORTED_IMAGE_FILE_FORMATS = ['.jpg', '.png']
+    SUPPORTED_IMAGE_FILE_FORMATS = ['.jpg', '.jpeg', '.png']
 
     def convert(self, input_files_list, output_filename):
 
