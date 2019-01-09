@@ -28,7 +28,7 @@ class Converter:
             if file.endswith('.pdf'):
                 self.FINAL_LIST.add(file)
 
-        merger = PdfFileMerger()
+        merger = PdfFileMerger(strict=False)
 
         for file in sorted(list(self.FINAL_LIST)):
             self.FILE_HANDLES.append(open(file, 'rb'))
@@ -47,7 +47,7 @@ class Converter:
     @staticmethod
     def split_pdf(filename, folder):
         with open(filename, 'rb') as infile:
-            reader = PdfFileReader(infile)
+            reader = PdfFileReader(infile, strict=False)
             for i in range(1, reader.numPages + 1):
                 writer = PdfFileWriter()
                 writer.addPage(reader.getPage(i - 1))
