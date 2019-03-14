@@ -33,22 +33,25 @@ class Converter:
                         print(e)
                 self.FINAL_LIST.add(new_filename)
 
-            if file.endswith('.pdf'):
+            if file.lower().endswith('.pdf'):
                 self.FINAL_LIST.add(file)
 
-        merger = PdfFileMerger(strict=False)
+        if self.FINAL_LIST:
+            merger = PdfFileMerger(strict=False)
 
-        for file in sorted(list(self.FINAL_LIST)):
-            self.FILE_HANDLES.append(open(file, 'rb'))
-            merger.append(self.FILE_HANDLES[-1])
+            for file in sorted(list(self.FINAL_LIST)):
+                self.FILE_HANDLES.append(open(file, 'rb'))
+                merger.append(self.FILE_HANDLES[-1])
 
-        with open(output_filename, 'wb') as w:
-            merger.write(w)
+            with open(output_filename, 'wb') as w:
+                merger.write(w)
 
-        for handle in self.FILE_HANDLES:
-            handle.close()
+            for handle in self.FILE_HANDLES:
+                handle.close()
 
-        self.FINAL_LIST = set()
+            self.FINAL_LIST = set()
+        else:
+            print("nothing to merge")
 
         shutil.rmtree(self.tempdir, ignore_errors=True)
 
