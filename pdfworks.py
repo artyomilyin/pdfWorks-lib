@@ -1,13 +1,13 @@
-from PyPDF2 import PdfFileMerger, PdfFileWriter, PdfFileReader
-import img2pdf
 import os
 import shutil
 import ntpath
 import sys
+from PyPDF2 import PdfFileMerger, PdfFileWriter, PdfFileReader
+from PIL import Image
+import img2pdf
 
 
 class Converter:
-
     SUPPORTED_IMAGE_FILE_FORMATS = ['.jpg', '.jpeg', '.png']
 
     def convert(self, input_files_list, output_filename):
@@ -17,10 +17,18 @@ class Converter:
 
         for file in input_files_list:
             if file.lower().endswith(tuple(self.SUPPORTED_IMAGE_FILE_FORMATS)):
-                new_filename = os.path.join(self.tempdir, ntpath.split(file)[1]+'.pdf')
+                new_filename = os.path.join(self.tempdir, ntpath.split(file)[1] + '.pdf')
+
+                with Image.open(file) as image_file:
+                    x, y = image_file.size
+                    if x > y:
+                        this_layout = self.layout_fun_horizontal
+                    else:
+                        this_layout = self.layout_fun_vertical
+
                 with open(file, 'rb') as r, open(new_filename, 'wb') as w:
                     try:
-                        w.write(img2pdf.convert(r, layout_fun=self.layout_fun))
+                        w.write(img2pdf.convert(r, layout_fun=this_layout))
                     except TypeError as e:
                         print(e)
                 self.FINAL_LIST.add(new_filename)
@@ -61,8 +69,8 @@ class Converter:
 
     def __init__(self):
         self.input_files = None
-        self.a4inpt = (img2pdf.mm_to_pt(210), img2pdf.mm_to_pt(297))
-        self.layout_fun = img2pdf.get_layout_fun(self.a4inpt)
+        self.layout_fun_vertical = img2pdf.get_layout_fun((img2pdf.mm_to_pt(210), img2pdf.mm_to_pt(297)))
+        self.layout_fun_horizontal = img2pdf.get_layout_fun((img2pdf.mm_to_pt(297), img2pdf.mm_to_pt(210)))
         self.FILE_HANDLES = []
         self.FINAL_LIST = set()
         self.INPUT_LIST = []
