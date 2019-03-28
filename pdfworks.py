@@ -66,7 +66,6 @@ class Converter:
                     folder,
                     os.path.splitext(ntpath.split(filename)[1])[0] + '_' + str(i) + '.pdf'
                 )
-                print(outfile_name)
                 with open(outfile_name, 'wb') as outfile:
                     writer.write(outfile)
 
