@@ -10,6 +10,12 @@ import img2pdf
 class Converter:
     SUPPORTED_IMAGE_FILE_FORMATS = ['.jpg', '.jpeg', '.png']
 
+    def _define_image_layout(self, filename):
+        with Image.open(filename) as image_file:
+            x, y = image_file.size
+            layout = self.layout_fun_horizontal if x > y else self.layout_fun_vertical
+            return layout
+
     def convert(self, input_files_list, output_filename):
         """
         :param input_files_list: list of full paths to files to be converted and merged
@@ -27,12 +33,7 @@ class Converter:
                 new_filename = os.path.join(self.tempdir, ntpath.split(file)[1] + '.pdf')
 
                 # consider image orientation
-                with Image.open(file) as image_file:
-                    x, y = image_file.size
-                    if x > y:
-                        this_layout = self.layout_fun_horizontal
-                    else:
-                        this_layout = self.layout_fun_vertical
+                this_layout = self._define_image_layout(file)
 
                 with open(file, 'rb') as r, open(new_filename, 'wb') as w:
                     try:
