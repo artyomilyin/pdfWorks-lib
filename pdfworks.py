@@ -7,19 +7,24 @@ from PIL import Image
 import img2pdf
 
 
+LAYOUT_FUNC_VERTICAL = img2pdf.get_layout_fun((img2pdf.mm_to_pt(210), img2pdf.mm_to_pt(297)))
+LAYOUT_FUNC_HORIZONTAL = img2pdf.get_layout_fun((img2pdf.mm_to_pt(297), img2pdf.mm_to_pt(210)))
+
+
 class Converter:
     SUPPORTED_IMAGE_FILE_FORMATS = ['.jpg', '.jpeg', '.png']
 
     def _define_image_layout(self, filename):
         with Image.open(filename) as image_file:
             x, y = image_file.size
-            layout = self.layout_fun_horizontal if x > y else self.layout_fun_vertical
-            return layout
+            layout_func = LAYOUT_FUNC_HORIZONTAL if x > y else LAYOUT_FUNC_VERTICAL
+            return layout_func
 
-    def _convert_to_temporary_pdf(self, filename, new_filename, layout):
+    def _convert_to_temporary_pdf(self, filename, new_filename):
+        layout_func = self._define_image_layout(filename)
         with open(filename, 'rb') as r, open(new_filename, 'wb') as w:
             try:
-                w.write(img2pdf.convert(r, layout_fun=layout))
+                w.write(img2pdf.convert(r, layout_fun=layout_func))
             except TypeError as e:
                 print(e)
 
@@ -33,6 +38,7 @@ class Converter:
         if not os.path.exists(self.tempdir):
             os.makedirs(self.tempdir)
 
+        input_pdf_list = []
         for file in input_files_list:
             # consider only image files that are supported
             if file.lower().endswith(tuple(self.SUPPORTED_IMAGE_FILE_FORMATS)):
@@ -40,28 +46,26 @@ class Converter:
                 new_filename = os.path.join(self.tempdir, ntpath.split(file)[1] + '.pdf')
 
                 # consider image orientation
-                this_layout = self._define_image_layout(file)
-                self._convert_to_temporary_pdf(file, new_filename, this_layout)
-                self.FINAL_LIST.append(new_filename)
+                self._convert_to_temporary_pdf(file, new_filename)
+                input_pdf_list.append(new_filename)
 
             if file.lower().endswith('.pdf'):
                 # if file is pdf than just add it to the list
-                self.FINAL_LIST.append(file)
+                input_pdf_list.append(file)
 
-        if self.FINAL_LIST:
+        if input_pdf_list:
             # add file by file to the output pdf document
             merger = PdfFileMerger(strict=False)
-            for file in self.FINAL_LIST:
-                self.FILE_HANDLES.append(open(file, 'rb'))
-                merger.append(self.FILE_HANDLES[-1])
+            file_handles = []
+            for file in input_pdf_list:
+                file_handles.append(open(file, 'rb'))
+                merger.append(file_handles[-1])
 
             with open(output_filename, 'wb') as w:
                 merger.write(w)
 
-            for handle in self.FILE_HANDLES:
+            for handle in file_handles:
                 handle.close()
-
-            self.FINAL_LIST = set()
         else:
             print("nothing to merge")
         # clean temporary directory
@@ -86,16 +90,9 @@ class Converter:
                     writer.write(outfile)
 
     def __init__(self):
-        self.input_files = None
-        self.layout_fun_vertical = img2pdf.get_layout_fun((img2pdf.mm_to_pt(210), img2pdf.mm_to_pt(297)))
-        self.layout_fun_horizontal = img2pdf.get_layout_fun((img2pdf.mm_to_pt(297), img2pdf.mm_to_pt(210)))
-        self.FILE_HANDLES = []
-        self.FINAL_LIST = []
-        self.INPUT_LIST = []
-        self.homedir = os.path.expanduser('~')
-
         # define temporary directory location
+        homedir = os.path.expanduser('~')
         if sys.platform == 'win32':
-            self.tempdir = os.sep.join([self.homedir, 'Application Data', 'pdfWorks'])
+            self.tempdir = os.sep.join([homedir, 'Application Data', 'pdfWorks'])
         else:
-            self.tempdir = os.sep.join([self.homedir, '.pdfWorks'])
+            self.tempdir = os.sep.join([homedir, '.pdfWorks'])
