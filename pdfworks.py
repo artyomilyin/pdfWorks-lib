@@ -39,17 +39,16 @@ class Converter:
                         w.write(img2pdf.convert(r, layout_fun=this_layout))
                     except TypeError as e:
                         print(e)
-                self.FINAL_LIST.add(new_filename)
+                self.FINAL_LIST.append(new_filename)
 
             if file.lower().endswith('.pdf'):
                 # if file is pdf than just add it to the list
-                self.FINAL_LIST.add(file)
+                self.FINAL_LIST.append(file)
 
         if self.FINAL_LIST:
             # add file by file to the output pdf document
             merger = PdfFileMerger(strict=False)
-
-            for file in sorted(list(self.FINAL_LIST)):
+            for file in self.FINAL_LIST:
                 self.FILE_HANDLES.append(open(file, 'rb'))
                 merger.append(self.FILE_HANDLES[-1])
 
@@ -88,7 +87,7 @@ class Converter:
         self.layout_fun_vertical = img2pdf.get_layout_fun((img2pdf.mm_to_pt(210), img2pdf.mm_to_pt(297)))
         self.layout_fun_horizontal = img2pdf.get_layout_fun((img2pdf.mm_to_pt(297), img2pdf.mm_to_pt(210)))
         self.FILE_HANDLES = []
-        self.FINAL_LIST = set()
+        self.FINAL_LIST = []
         self.INPUT_LIST = []
         self.homedir = os.path.expanduser('~')
 
