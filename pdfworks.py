@@ -16,6 +16,13 @@ class Converter:
             layout = self.layout_fun_horizontal if x > y else self.layout_fun_vertical
             return layout
 
+    def _convert_to_temporary_pdf(self, filename, new_filename, layout):
+        with open(filename, 'rb') as r, open(new_filename, 'wb') as w:
+            try:
+                w.write(img2pdf.convert(r, layout_fun=layout))
+            except TypeError as e:
+                print(e)
+
     def convert(self, input_files_list, output_filename):
         """
         :param input_files_list: list of full paths to files to be converted and merged
@@ -34,12 +41,7 @@ class Converter:
 
                 # consider image orientation
                 this_layout = self._define_image_layout(file)
-
-                with open(file, 'rb') as r, open(new_filename, 'wb') as w:
-                    try:
-                        w.write(img2pdf.convert(r, layout_fun=this_layout))
-                    except TypeError as e:
-                        print(e)
+                self._convert_to_temporary_pdf(file, new_filename, this_layout)
                 self.FINAL_LIST.append(new_filename)
 
             if file.lower().endswith('.pdf'):
